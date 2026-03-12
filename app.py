@@ -1,15 +1,21 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, jsonify, request, render_template_string
 
 app = Flask(__name__)
+
+# Temporary storage
+student_data = {
+    "name": "Alexa",
+    "grade": 10,
+    "section": "Zechariah"
+}
 
 @app.route("/")
 def home():
     return render_template_string("""
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Grade Analyzer Dashboard</title>
+<title>Student API Dashboard</title>
 
 <style>
 
@@ -26,54 +32,52 @@ display:flex;
 justify-content:center;
 align-items:center;
 background:linear-gradient(135deg,#667eea,#764ba2);
-}
-
-.container{
-width:400px;
-padding:40px;
-border-radius:20px;
-background:rgba(255,255,255,0.15);
-backdrop-filter:blur(10px);
-box-shadow:0 8px 32px rgba(0,0,0,0.2);
-text-align:center;
 color:white;
 }
 
+.container{
+width:420px;
+padding:35px;
+border-radius:20px;
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(10px);
+box-shadow:0 10px 40px rgba(0,0,0,0.3);
+text-align:center;
+}
+
 h1{
-margin-bottom:20px;
+margin-bottom:15px;
 }
 
 input{
 width:100%;
-padding:12px;
-margin:10px 0;
+padding:10px;
+margin:8px 0;
 border:none;
-border-radius:8px;
-outline:none;
-font-size:16px;
+border-radius:6px;
 }
 
 button{
 width:100%;
 padding:12px;
-margin-top:10px;
 border:none;
 border-radius:8px;
 background:#00e1ff;
 color:black;
 font-weight:bold;
 cursor:pointer;
-transition:0.3s;
+margin-top:10px;
 }
 
 button:hover{
 background:#00bcd4;
 }
 
-.result{
+.card{
 margin-top:20px;
-font-size:20px;
-font-weight:bold;
+padding:15px;
+border-radius:10px;
+background:rgba(255,255,255,0.25);
 }
 
 .footer{
@@ -83,42 +87,70 @@ opacity:0.7;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h1>🎓 Grade Analyzer</h1>
+<h1>🎓 Student Dashboard</h1>
 
-<input type="number" id="score" placeholder="Enter your score">
+<input id="name" placeholder="Student Name">
+<input id="grade" placeholder="Grade">
+<input id="section" placeholder="Section">
 
-<button onclick="checkGrade()">Check Grade</button>
+<button onclick="saveStudent()">Save Student</button>
+<button onclick="loadStudent()">Load Student</button>
 
-<div class="result" id="result"></div>
+<div class="card" id="result">
+Student info will appear here
+</div>
 
 <div class="footer">
-API Powered by Flask
+Flask API Project
 </div>
 
 </div>
 
 <script>
 
-function checkGrade(){
+function saveStudent(){
 
-let score = document.getElementById("score").value;
+let name=document.getElementById("name").value
+let grade=document.getElementById("grade").value
+let section=document.getElementById("section").value
 
-fetch("/grade?score=" + score)
+fetch("/student",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name:name,
+grade:grade,
+section:section
+})
+})
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("result").innerHTML="Student Saved ✅"
+})
 
-.then(response => response.json())
+}
 
-.then(data => {
+function loadStudent(){
 
-document.getElementById("result").innerHTML =
-"Score: " + data.score + "<br>Grade: " + data.grade;
+fetch("/student")
+.then(res=>res.json())
+.then(data=>{
 
-});
+document.getElementById("result").innerHTML=
+"<h3>"+data.name+"</h3>"+
+"Grade: "+data.grade+"<br>"+
+"Section: "+data.section
+
+})
 
 }
 
@@ -128,26 +160,16 @@ document.getElementById("result").innerHTML =
 </html>
 """)
 
-@app.route("/grade")
-def grade():
+@app.route("/student", methods=["GET","POST"])
+def student():
 
-    score = int(request.args.get("score"))
+    global student_data
 
-    if score >= 90:
-        grade = "A"
-    elif score >= 80:
-        grade = "B"
-    elif score >= 70:
-        grade = "C"
-    elif score >= 60:
-        grade = "D"
-    else:
-        grade = "F"
+    if request.method == "POST":
+        student_data = request.json
+        return jsonify({"message":"Student saved","data":student_data})
 
-    return jsonify({
-        "score": score,
-        "grade": grade
-    })
+    return jsonify(student_data)
 
 
 if __name__ == "__main__":
