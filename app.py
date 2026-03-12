@@ -26,9 +26,7 @@ button{padding:12px 25px;border:none;border-radius:8px;background:#00e1ff;font-w
 <p>A Flask API project with dashboard, student records, and management tools.</p>
 <button onclick="enter()">Enter System</button>
 </div>
-<script>
-function enter(){window.location="/dashboard"}
-</script>
+<script>function enter(){window.location="/dashboard"}</script>
 </body>
 </html>
 """)
@@ -48,7 +46,7 @@ body{font-family:Segoe UI;background:linear-gradient(135deg,#667eea,#764ba2);col
 .nav{margin-bottom:30px;}
 .nav button{margin:5px;padding:10px 20px;border:none;border-radius:6px;background:#00e1ff;font-weight:bold;cursor:pointer;}
 .card{background:rgba(255,255,255,0.2);padding:20px;border-radius:12px;width:300px;margin:auto;margin-bottom:30px;}
-canvas{background:white;border-radius:10px;padding:10px;}
+canvas{background:white;border-radius:10px;padding:10px;max-width:400px;}
 </style>
 </head>
 <body>
@@ -64,18 +62,14 @@ canvas{background:white;border-radius:10px;padding:10px;}
 </div>
 <canvas id="chart" width="400" height="200"></canvas>
 <script>
-fetch("/student")
-.then(res=>res.json())
-.then(data=>{
+fetch("/student").then(res=>res.json()).then(data=>{
 document.getElementById("total").innerText=data.length;
 let grades={};
 data.forEach(s=>{grades[s.grade]=(grades[s.grade]||0)+1});
 let labels=Object.keys(grades);
 let values=Object.values(grades);
-new Chart(document.getElementById("chart"),{
-type:"bar",
-data:{labels:labels,datasets:[{label:"Students per Grade",data:values}]}
-});
+new Chart(document.getElementById("chart"),{type:"bar",
+data:{labels:labels,datasets:[{label:"Students per Grade",data:values}]}})
 })
 function goForm(){window.location="/form"}
 function goStudents(){window.location="/students"}
@@ -145,6 +139,8 @@ th{background:#00e1ff;color:black;}
 button{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;}
 .edit{background:#ffc107;}
 .delete{background:#ff5c5c;color:white;}
+.dashboard-btn{background:#00ff94;color:black;padding:8px 15px;margin-top:15px;border:none;border-radius:6px;cursor:pointer;}
+canvas{background:white;border-radius:10px;padding:10px;max-width:300px;}
 </style>
 </head>
 <body>
@@ -154,21 +150,22 @@ button{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;}
 <br><br>
 <table>
 <thead>
-<tr>
-<th>Name</th><th>Grade</th><th>Section</th><th>Actions</th>
-</tr>
+<tr><th>Name</th><th>Grade</th><th>Section</th><th>Actions</th></tr>
 </thead>
 <tbody id="table"></tbody>
 </table>
+
+<!-- Back to Dashboard Button -->
+<button class="dashboard-btn" onclick="goDashboard()">⬅ Back to Dashboard</button>
+
 <h2>📊 Section Statistics</h2>
 <canvas id="chart" width="400" height="200"></canvas>
+
 <script>
 let students=[]
 let chart
 
-fetch("/student")
-.then(res=>res.json())
-.then(data=>{
+fetch("/student").then(res=>res.json()).then(data=>{
 students=data.sort((a,b)=>a.name.localeCompare(b.name))
 display(students)
 createChart(students)
@@ -180,9 +177,7 @@ let tbody=document.getElementById("table")
 tbody.innerHTML=""
 data.forEach((s,i)=>{
 tbody.innerHTML+=`<tr>
-<td>${s.name}</td>
-<td>${s.grade}</td>
-<td>${s.section}</td>
+<td>${s.name}</td><td>${s.grade}</td><td>${s.section}</td>
 <td>
 <button class="edit" onclick="editStudent(${i})">Edit</button>
 <button class="delete" onclick="deleteStudent(${i})">Delete</button>
@@ -200,8 +195,7 @@ createChart(filtered)
 
 function deleteStudent(index){
 fetch("/delete/"+index,{method:"DELETE"})
-.then(res=>res.json())
-.then(data=>{location.reload()})
+.then(res=>res.json()).then(data=>{location.reload()})
 }
 
 function editStudent(index){
@@ -213,7 +207,7 @@ body:JSON.stringify({name:name,grade:grade,section:section})})
 .then(res=>res.json()).then(data=>{location.reload()})
 }
 
-// ---------------- SECTION BUTTONS -----------------
+// Section Buttons
 function createSectionButtons(){
 let btnContainer=document.getElementById("section-buttons")
 let sections=[...new Set(students.map(s=>s.section))]
@@ -227,7 +221,7 @@ display(filtered)
 createChart(filtered)
 }
 
-// ----------------- CHART -----------------
+// Chart
 function createChart(data){
 let grades={}
 data.forEach(s=>{grades[s.grade]=(grades[s.grade]||0)+1})
@@ -235,8 +229,11 @@ let labels=Object.keys(grades)
 let values=Object.values(grades)
 if(chart){chart.destroy()}
 chart=new Chart(document.getElementById("chart"),{type:"bar",
-data:{labels:labels,datasets:[{label:"Students per Grade",data:values}]} })
+data:{labels:labels,datasets:[{label:"Students per Grade",data:values}]}})
 }
+
+// Navigate to Dashboard
+function goDashboard(){window.location="/dashboard"}
 </script>
 </body>
 </html>
