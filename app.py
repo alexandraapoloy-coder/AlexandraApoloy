@@ -2,91 +2,135 @@ from flask import Flask, request, jsonify, render_template_string
 
 app = Flask(__name__)
 
-# Simple UI Page
 @app.route("/")
 def home():
     return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Grade Calculator</title>
-        <style>
-            body{
-                font-family: Arial;
-                background: linear-gradient(135deg,#4facfe,#00f2fe);
-                height:100vh;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-            }
-            .card{
-                background:white;
-                padding:30px;
-                border-radius:12px;
-                width:320px;
-                box-shadow:0 10px 25px rgba(0,0,0,0.2);
-                text-align:center;
-            }
-            h2{margin-bottom:20px;}
-            input{
-                width:90%;
-                padding:10px;
-                margin:8px 0;
-                border-radius:6px;
-                border:1px solid #ccc;
-            }
-            button{
-                background:#4facfe;
-                color:white;
-                border:none;
-                padding:10px 15px;
-                border-radius:6px;
-                cursor:pointer;
-                margin-top:10px;
-            }
-            button:hover{
-                background:#007bff;
-            }
-            #result{
-                margin-top:15px;
-                font-weight:bold;
-                color:#333;
-            }
-        </style>
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Grade Analyzer Dashboard</title>
 
-        <div class="card">
-            <h2>Grade Calculator</h2>
+<style>
 
-            <input type="number" id="score" placeholder="Enter Score">
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI;
+}
 
-            <br>
-            <button onclick="getGrade()">Check Grade</button>
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#667eea,#764ba2);
+}
 
-            <div id="result"></div>
-        </div>
+.container{
+width:400px;
+padding:40px;
+border-radius:20px;
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(10px);
+box-shadow:0 8px 32px rgba(0,0,0,0.2);
+text-align:center;
+color:white;
+}
 
-    <script>
-    function getGrade(){
-        let score = document.getElementById("score").value;
+h1{
+margin-bottom:20px;
+}
 
-        fetch("/grade?score=" + score)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("result").innerHTML =
-                "Grade: " + data.grade;
-        });
-    }
-    </script>
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:8px;
+outline:none;
+font-size:16px;
+}
 
-    </body>
-    </html>
-    """)
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+background:#00e1ff;
+color:black;
+font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+}
 
-# API Endpoint
+button:hover{
+background:#00bcd4;
+}
+
+.result{
+margin-top:20px;
+font-size:20px;
+font-weight:bold;
+}
+
+.footer{
+margin-top:15px;
+font-size:12px;
+opacity:0.7;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎓 Grade Analyzer</h1>
+
+<input type="number" id="score" placeholder="Enter your score">
+
+<button onclick="checkGrade()">Check Grade</button>
+
+<div class="result" id="result"></div>
+
+<div class="footer">
+API Powered by Flask
+</div>
+
+</div>
+
+<script>
+
+function checkGrade(){
+
+let score = document.getElementById("score").value;
+
+fetch("/grade?score=" + score)
+
+.then(response => response.json())
+
+.then(data => {
+
+document.getElementById("result").innerHTML =
+"Score: " + data.score + "<br>Grade: " + data.grade;
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
+""")
+
 @app.route("/grade")
 def grade():
+
     score = int(request.args.get("score"))
 
     if score >= 90:
