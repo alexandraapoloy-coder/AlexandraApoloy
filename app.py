@@ -2,12 +2,8 @@ from flask import Flask, jsonify, request, render_template_string
 
 app = Flask(__name__)
 
-# Temporary storage
-student_data = {
-    "name": "Alexa",
-    "grade": 10,
-    "section": "Zechariah"
-}
+# Store multiple students
+students = []
 
 @app.route("/")
 def home():
@@ -73,13 +69,6 @@ button:hover{
 background:#00bcd4;
 }
 
-.card{
-margin-top:20px;
-padding:15px;
-border-radius:10px;
-background:rgba(255,255,255,0.25);
-}
-
 .footer{
 margin-top:15px;
 font-size:12px;
@@ -101,11 +90,8 @@ opacity:0.7;
 <input id="section" placeholder="Section">
 
 <button onclick="saveStudent()">Save Student</button>
-<button onclick="loadStudent()">Load Student</button>
 
-<div class="card" id="result">
-Student info will appear here
-</div>
+<button onclick="viewStudents()">View All Students</button>
 
 <div class="footer">
 Flask API Project
@@ -134,24 +120,101 @@ section:section
 })
 .then(res=>res.json())
 .then(data=>{
-document.getElementById("result").innerHTML="Student Saved ✅"
+alert("Student Saved ✅")
 })
 
 }
 
-function loadStudent(){
+function viewStudents(){
+window.location="/students"
+}
+
+</script>
+
+</body>
+</html>
+""")
+
+@app.route("/students")
+def students_page():
+    return render_template_string("""
+<!DOCTYPE html>
+<html>
+<head>
+<title>Saved Students</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:linear-gradient(135deg,#667eea,#764ba2);
+padding:40px;
+color:white;
+text-align:center;
+}
+
+h1{
+margin-bottom:30px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+}
+
+.card{
+background:rgba(255,255,255,0.2);
+padding:20px;
+border-radius:12px;
+backdrop-filter:blur(8px);
+}
+
+button{
+margin-top:30px;
+padding:10px 20px;
+border:none;
+border-radius:8px;
+background:#00e1ff;
+cursor:pointer;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>📚 Saved Students</h1>
+
+<div class="grid" id="students"></div>
+
+<button onclick="goBack()">⬅ Back to Home</button>
+
+<script>
 
 fetch("/student")
 .then(res=>res.json())
 .then(data=>{
 
-document.getElementById("result").innerHTML=
-"<h3>"+data.name+"</h3>"+
-"Grade: "+data.grade+"<br>"+
-"Section: "+data.section
+let container=document.getElementById("students")
+
+data.forEach(student=>{
+
+container.innerHTML+=
+"<div class='card'>"+
+"<h3>"+student.name+"</h3>"+
+"<p>Grade: "+student.grade+"</p>"+
+"<p>Section: "+student.section+"</p>"+
+"</div>"
 
 })
 
+})
+
+function goBack(){
+window.location="/"
 }
 
 </script>
@@ -163,13 +226,14 @@ document.getElementById("result").innerHTML=
 @app.route("/student", methods=["GET","POST"])
 def student():
 
-    global student_data
+    global students
 
     if request.method == "POST":
-        student_data = request.json
-        return jsonify({"message":"Student saved","data":student_data})
+        data = request.json
+        students.append(data)
+        return jsonify({"message":"Student saved","students":students})
 
-    return jsonify(student_data)
+    return jsonify(students)
 
 
 if __name__ == "__main__":
