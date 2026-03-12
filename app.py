@@ -68,8 +68,31 @@ let grades={};
 data.forEach(s=>{grades[s.grade]=(grades[s.grade]||0)+1});
 let labels=Object.keys(grades);
 let values=Object.values(grades);
-new Chart(document.getElementById("chart"),{type:"bar",
-data:{labels:labels,datasets:[{label:"Students per Grade",data:values}]}})
+new Chart(document.getElementById("chart"),{
+type:'line',
+data:{
+labels:labels,
+datasets:[{
+label:'Students per Grade',
+data:values,
+borderColor:'#00e1ff',
+backgroundColor:'rgba(0,225,255,0.2)',
+fill:true,
+tension:0.4,
+pointBackgroundColor:'#ffffff',
+pointBorderColor:'#00e1ff',
+pointRadius:6,
+pointHoverRadius:8
+}]
+},
+options:{
+plugins:{legend:{labels:{color:'white',font:{size:14}}}},
+scales:{
+x:{ticks:{color:'white',font:{size:12}}},
+y:{ticks:{color:'white',font:{size:12},stepSize:1}}
+}
+}
+});
 })
 function goForm(){window.location="/form"}
 function goStudents(){window.location="/students"}
@@ -221,18 +244,40 @@ display(filtered)
 createChart(filtered)
 }
 
-// Chart
+// Chart - Aesthetic Line
 function createChart(data){
 let grades={}
 data.forEach(s=>{grades[s.grade]=(grades[s.grade]||0)+1})
 let labels=Object.keys(grades)
 let values=Object.values(grades)
 if(chart){chart.destroy()}
-chart=new Chart(document.getElementById("chart"),{type:"bar",
-data:{labels:labels,datasets:[{label:"Students per Grade",data:values}]}})
+chart=new Chart(document.getElementById("chart"),{
+type:'line',
+data:{
+labels:labels,
+datasets:[{
+label:'Students per Grade',
+data:values,
+borderColor:'#00e1ff',
+backgroundColor:'rgba(0,225,255,0.2)',
+fill:true,
+tension:0.4,
+pointBackgroundColor:'#ffffff',
+pointBorderColor:'#00e1ff',
+pointRadius:6,
+pointHoverRadius:8
+}]
+},
+options:{
+plugins:{legend:{labels:{color:'white',font:{size:14}}}},
+scales:{
+x:{ticks:{color:'white',font:{size:12}}},
+y:{ticks:{color:'white',font:{size:12},stepSize:1}}
+}
+}
+})
 }
 
-// Navigate to Dashboard
 function goDashboard(){window.location="/dashboard"}
 </script>
 </body>
